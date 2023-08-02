@@ -1,5 +1,7 @@
+%Retrieves the Lahman database which contains all the data on pitchers%
 setupLahmanDatabase
 
+%Loads tables created using code from a project in the github repository%
 load careerPitching2.mat
 load seasonPitching2.mat
 
