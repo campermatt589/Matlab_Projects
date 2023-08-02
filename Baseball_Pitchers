@@ -1,0 +1,127 @@
+setupLahmanDatabase
+
+load careerPitching2.mat
+load seasonPitching2.mat
+
+scatter(careerPitching.SO, careerPitching.ER)
+xlabel("Strikeouts")
+ylabel("Earned Runs")
+
+%Gets the names of all the pitchers throughout the history of Major League Baseball%
+names = importNames("People.csv")
+names.Name = names.nameFirst + " " + names.nameLast
+
+names = removevars(names, ["nameFirst","nameLast"])
+
+%Joins the seasonPitching table and names table to include names of each pitcher by playerID%
+
+% Join tables
+joinedData = outerjoin(seasonPitching,names,"Keys","playerID",...
+    "MergeKeys",true)
+greatPitchers = joinedData;
+
+
+
+save careerPitching3 greatPitchers
+
+%Moves Name to the second column of the table%
+greatPitchers = movevars(greatPitchers, "Name", "After", "playerID")
+
+%This code looks for young pitchers for free agency%
+greatRecentPitchers = greatPitchers(greatPitchers.yearID >= 2016, :)
+
+
+% Transform data by group
+newTable6 = grouptransform(greatRecentPitchers,"playerID",...
+    @(yearID) yearID - min(yearID) + 1,"yearID","ReplaceValues",false)
+
+greatRecentPitchers = newTable6;
+
+%Moves season number to after the Name column%
+greatRecentPitchers = movevars(greatRecentPitchers, "fun_yearID", "After", "Name")
+
+%Renames a column to properly label the season number%
+greatRecentPitchers = renamevars(greatRecentPitchers, "fun_yearID", "SeasonNum")
+
+%Filters the data to include only seasons where starting pitchers that started more than 10 games. You could modify this code to account for players that were injured in a season %
+greatRecentPitchers = greatRecentPitchers(greatRecentPitchers.GS > 10, :)
+
+%Filters data to find pitchers that have a relatively young MLB career%
+greatRecentPitchers = greatRecentPitchers(greatRecentPitchers.SeasonNum <= 6, :)
+
+%Finding the career statistics for pitchers within the time period in the greatRecentPitchers
+%table
+
+% Compute group summary
+newTable = groupsummary(greatRecentPitchers,"Name","sum",vartype("numeric"))
+
+greatRecentPitchCareers = newTable;
+
+%Removes the sum of the yearID%
+greatRecentPitchCareers = removevars(greatRecentPitchCareers, "sum_yearID")
+
+
+%Gets the names of the variables%
+varnames = greatRecentPitchCareers.Properties.VariableNames
+
+%Removes sum_ from each column%
+varnames = erase(varnames, "sum_")
+
+%Replaces the variable names with the variable names without sum_%
+greatRecentPitchCareers.Properties.VariableNames = varnames
+
+%Removes GroupCount%
+greatRecentPitchCareers = removevars(greatRecentPitchCareers, "GroupCount")
+
+%Removes ERA since ERA is the sum of the all ERAs from each season%
+greatRecentPitchCareers = removevars(greatRecentPitchCareers, "ERA")
+
+%Calculates Innings Pitched%
+greatRecentPitchCareers.IP = greatRecentPitchCareers.IPouts ./ 3
+
+%Caculates Pitcher ERA%
+greatRecentPitchCareers.ERA = (9*greatRecentPitchCareers.ER) ./ greatRecentPitchCareers.IP
+
+%Moves ERA to its original position, after strikeouts(SO)%
+greatRecentPitchCareers = movevars(greatRecentPitchCareers, "ERA", "After", "SO" )
+
+%Gives us all the names of pitchers throughout MLB history%
+players = unique(greatRecentPitchers.Name)
+%Provides a dropdown menu for all pitchers. Used to compare a select number of pitchers, in this case, ERA%
+
+player1 = players(33)
+
+player2 = players(91)
+
+%player3 = %
+%...
+%...
+%...
+%...
+
+%Gets a table of median ERA for each season%
+
+% Compute group summary
+newTable2 = groupsummary(greatRecentPitchers,"yearID","median","ERA");
+newTable2.GroupCount = []
+seasonERA = newTable2;
+
+%Gets season stats for a predetermined number of pitchers N %
+player1stats = greatRecentPitchers(greatRecentPitchers.Name == player1, :)
+
+player2stats = greatRecentPitchers(greatRecentPitchers.Name == player2, :)
+
+%playerNstats = greatRecentPitchers(greatRecentPitchers.Name == playerN, :)%
+
+%Creates plot to compare a pitcher's ERA%
+plot(seasonERA.yearID, seasonERA.median_ERA, "-o")
+xlabel("Year")
+ylabel("ERA")
+
+hold on
+%Plots each player's stats%
+plot(player1stats.yearID, player1stats.ERA, "-o")
+plot(player2stats.yearID, player2stats.ERA, "-o")
+%plot(playerNstats.yearID, playerNstats.ERA, "-o")%
+hold off
+legend(["Median ERA", player1, player2])
