@@ -1,0 +1,51 @@
+%Retrieves the data from the Lahman database which contains data on all players%
+setupLahmanDatabase
+
+%Loads the Pitching data from the Pitching.csv file%
+pitching = importPitchingTable("Pitching.csv")
+
+%Creates table to summarize career pitching stats and removes the sum of yearID and sum of ERA%
+
+% Compute group summary
+newTable = groupsummary(pitching,"playerID","sum");
+newTable.GroupCount = []
+careerPitching = newTable; 
+careerPitching = removevars(careerPitching, "sum_yearID")
+
+%Removes sum_ERA column from the dataset%
+careerPitching = removevars(careerPitching, "sum_ERA")
+
+%Renames the variable by removing sum_ from each stat then replaces it into the old variable names%
+varnames = careerPitching.Properties.VariableNames
+
+varnames = erase(varnames, "sum_")
+
+careerPitching.Properties.VariableNames = varnames
+
+%Calculates innings pitched to calculate ERA%
+careerPitching.IP = careerPitching.IPouts ./ 3
+
+%Recalculates Pitcher's Career ERA%
+careerPitching.ERA = (9 * careerPitching.ER) ./ careerPitching.IP
+
+
+
+%This will calculate a pitchers career stat by season and number %
+
+% Compute group summary
+newTable2 = groupsummary(pitching,["playerID","yearID"],"sum")
+seasonPitching = newTable2;
+
+%Removes sum_ from each variable name to have just the vriable name remain%
+varnames = seasonPitching.Properties.VariableNames
+
+varnames = erase(varnames, "sum_")
+
+seasonPitching.Properties.VariableNames = varnames
+
+%Creates tables to use for the future%
+save careerPitching2 careerPitching
+save seasonPitching2 seasonPitching
+
+%Calculates the amount of teams a pitcher was apart of during a given season%
+seasonPitching = renamevars(seasonPitching, "GroupCount", "NumTeams")
