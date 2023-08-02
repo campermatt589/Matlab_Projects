@@ -1,0 +1,54 @@
+load careerPitching3.mat
+
+%Moves Name to the second column%
+greatPitchers = movevars(greatPitchers, "Name", "After", "playerID")
+
+%Filtering Data to only include players who played in 2016 or later%
+greatPitchers = greatPitchers(greatPitchers.yearID >= 2016, :)
+
+%Finding starting pitchers in free agency with a fair amoount of starts for injury and consistency evaluation%
+%greatStarters = greatPitchers(greatPitchers.ERA [condition], :)%
+%greatStarters = greatPitchers(greatPitchers.GS [condition], :)%
+
+%Finding relief pitchers in free agency by earliest season to see progression, appearances, ERA, strikeouts%
+%greatRelievers = greatPitchers(greatPitchers.yearID >= [year condition], :)%
+%greatRelievers = greatPitchers(greatPitchers.G == 0, :)%
+%greatRelievers = greatPitchers(greatPitchers.ERA [condition], :)%
+%greatRelievers = greatPitchers(greatPitchers.SO [condition], :)%
+
+%Gets the Median ERA for 2016 to present%
+
+% Compute group summary
+newTable = groupsummary(greatPitchers,"yearID","median","ERA");
+newTable.GroupCount = []
+seasonalERA = newTable; 
+
+%Capitalizes Median%
+seasonalERA = renamevars(seasonalERA, "median_ERA", "Median_ERA")
+
+%Gets the variable names of the greatPitchers table. The next line of code gets a unique set of names from the greatPitchers dataset%
+names = greatPitchers.Properties.VariableNames
+
+players = unique(greatPitchers.Name)
+%Player 1 and 2 use the dropdown feature to get all the pitcher's name%
+player1 = players(1)
+
+player2 = players(1)
+
+%Gets us the stats of player1%
+player1stats = greatPitchers(greatPitchers.Name == player1, :)
+
+%Gets the stats of player 2%
+player2stats = greatPitchers(greatPitchers.Name == player2, :)
+
+%This code will be used to compare pitchers using an unspecified statistic%
+%plot(season(Stat).yearID, season(Stat).(Insert Needed Stat), "-o")%
+%xlabel("Year")%
+%ylabel("ERA")%
+
+%%
+%hold on%
+%plot(player1stats.(insert stat), player1stats.(insert stat), "-o")
+%plot(player2stats.(insert stat), player2stats.(insert stat), "-o")
+%hold off
+%legend(["(insert stat)", player1, player2])
