@@ -126,4 +126,3 @@ plot(player2stats.yearID, player2stats.ERA, "-o")
 %plot(playerNstats.yearID, playerNstats.ERA, "-o")%
 hold off
 legend(["Median ERA", player1, player2])
-
