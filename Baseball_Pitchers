@@ -1,7 +1,5 @@
-%Retrieves the Lahman database which contains all the data on pitchers%
 setupLahmanDatabase
 
-%Loads tables created using code from a project in the github repository%
 load careerPitching2.mat
 load seasonPitching2.mat
 
@@ -24,20 +22,21 @@ greatPitchers = joinedData;
 
 
 
-save careerPitching3 greatPitchers
+save seasonPitching3 greatPitchers
 
 %Moves Name to the second column of the table%
 greatPitchers = movevars(greatPitchers, "Name", "After", "playerID")
 
-%This code looks for young pitchers for free agency%
-greatRecentPitchers = greatPitchers(greatPitchers.yearID >= 2016, :)
-
 
 % Transform data by group
-newTable6 = grouptransform(greatRecentPitchers,"playerID",...
+newTable6 = grouptransform(greatPitchers,"playerID",...
     @(yearID) yearID - min(yearID) + 1,"yearID","ReplaceValues",false)
-
 greatRecentPitchers = newTable6;
+
+
+
+%This code looks for young pitchers for free agency%
+greatRecentPitchers = greatRecentPitchers(greatRecentPitchers.yearID >= 2016, :)
 
 %Moves season number to after the Name column%
 greatRecentPitchers = movevars(greatRecentPitchers, "fun_yearID", "After", "Name")
@@ -127,3 +126,4 @@ plot(player2stats.yearID, player2stats.ERA, "-o")
 %plot(playerNstats.yearID, playerNstats.ERA, "-o")%
 hold off
 legend(["Median ERA", player1, player2])
+
