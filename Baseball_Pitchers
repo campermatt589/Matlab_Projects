@@ -48,7 +48,7 @@ greatRecentPitchers = renamevars(greatRecentPitchers, "fun_yearID", "SeasonNum")
 greatRecentPitchers = greatRecentPitchers(greatRecentPitchers.GS > 10, :)
 
 %Filters data to find pitchers that have a relatively young MLB career%
-greatRecentPitchers = greatRecentPitchers(greatRecentPitchers.SeasonNum <= 6, :)
+greatRecentPitchers = greatRecentPitchers(greatRecentPitchers.SeasonNum >= 1 & greatRecentPitchers.SeasonNum <= 6, :)
 
 %Finding the career statistics for pitchers within the time period in the greatRecentPitchers
 %table
